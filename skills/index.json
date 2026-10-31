@@ -1,0 +1,115 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jame581/GodotPrompter/master/skills/schema.json",
+  "skills": [
+    {
+      "name": "gecs-best-practices",
+      "description": "Skill for gecs-best-practices",
+      "path": "skills/gecs-best-practices"
+    },
+    {
+      "name": "gecs-code-review",
+      "description": "Use when reviewing GDScript GECS code — checklist of best practices, common ECS anti-patterns, CommandBuffer safety, pure data invariants, and performance pitfalls",
+      "path": "skills/gecs-code-review"
+    },
+    {
+      "name": "gecs-core",
+      "description": "Use when setting up or building Godot 4 games with GECS (Godot Entity Component System v9) — World setup, minimal scene skeleton, Entity scene glue, pure data Components, System batch processing with iterate(), and CommandBuffer (cmd) iteration lifecycle",
+      "path": "skills/gecs-core"
+    },
+    {
+      "name": "gecs-debugging",
+      "description": "Use when debugging GECS projects — GECS Explorer (Debug Viewer) window, Step Debugger API (FRAME, GROUP, SYSTEM, ARCHETYPE, ENTITY steps), diff sweep, breakpoints, and GECSTracker dependency tracking",
+      "path": "skills/gecs-debugging"
+    },
+    {
+      "name": "gecs-entities-components",
+      "description": "Use when designing GECS Entities (e_*.gd) or Components (c_*.gd) — Entity scene glue pattern, pure data components with @export, default _init arguments, spatial root casting, singleton alias handles, and reactive setters",
+      "path": "skills/gecs-entities-components"
+    },
+    {
+      "name": "gecs-level-spawner",
+      "description": "Use when managing level switching without re-bootstrapping ECS World, pooling massive entities, despawn garbage management, or rendering mass units with Nodeless entities and MultiMesh in GECS",
+      "path": "skills/gecs-level-spawner"
+    },
+    {
+      "name": "gecs-navigation-integration",
+      "description": "Skill for gecs-navigation-integration",
+      "path": "skills/gecs-navigation-integration"
+    },
+    {
+      "name": "gecs-networking",
+      "description": "Skill for gecs-networking",
+      "path": "skills/gecs-networking"
+    },
+    {
+      "name": "gecs-observers",
+      "description": "Use when building reactive event-driven logic in GECS — Observer nodes (o_*.gd), each() callback, .on_added(), .on_removed(), .on_changed(), monitors (.on_match(), .on_unmatch()), custom events, and breaking cascade loops with cmd",
+      "path": "skills/gecs-observers"
+    },
+    {
+      "name": "gecs-performance",
+      "description": "Use when profiling, diagnosing low FPS, or optimizing GECS games — SoA column iteration, entity pooling (enable/disable), query cache statistics, GDScript overhead ceiling, and v9 benchmarks",
+      "path": "skills/gecs-performance"
+    },
+    {
+      "name": "gecs-physics-integration",
+      "description": "Skill for gecs-physics-integration",
+      "path": "skills/gecs-physics-integration"
+    },
+    {
+      "name": "gecs-queries",
+      "description": "Use when constructing GECS entity queries — QueryBuilder fluent chaining with with_all(), with_any(), with_none(), component property queries (_eq, _lt), .from() pre-narrowed arrays, and v9 .changed() change detection",
+      "path": "skills/gecs-queries"
+    },
+    {
+      "name": "gecs-relationships",
+      "description": "Use when connecting entities or adding link-attached data in GECS — Entity-Entity pairs, Entity-Component data links, Entity-Archetype relationships, wildcard queries, stacked removals (buffs/debuffs), and the Rels factory pattern",
+      "path": "skills/gecs-relationships"
+    },
+    {
+      "name": "gecs-serialization",
+      "description": "Use when implementing save/load systems, level export, or entity persistence in GECS — ECS.serialize(), ECS.save(), ECS.deserialize(), GECSSerializeConfig, binary .res vs text .tres, and duplicate node name pitfalls",
+      "path": "skills/gecs-serialization"
+    },
+    {
+      "name": "gecs-state-machine",
+      "description": "Use when designing or implementing character states and finite state machines (FSM) in GECS — Property-Based States (enum/component), Component-Swapping States, layered/orthogonal states (locomotion + combat), and avoiding OOP Node-based FSMs",
+      "path": "skills/gecs-state-machine"
+    },
+    {
+      "name": "gecs-systems",
+      "description": "Use when implementing GECS Systems (s_*.gd) — process() loop, fast SoA batching via iterate(), sub-systems, CommandBuffer (cmd) deferred mutations, tick rate scheduling, and dependency ordering",
+      "path": "skills/gecs-systems"
+    },
+    {
+      "name": "gecs-testing",
+      "description": "Skill for gecs-testing",
+      "path": "skills/gecs-testing"
+    },
+    {
+      "name": "gecs-troubleshooting",
+      "description": "Skill for gecs-troubleshooting",
+      "path": "skills/gecs-troubleshooting"
+    },
+    {
+      "name": "gecs-ui-bridge",
+      "description": "Use when bridging GECS simulation data to Godot Control/UI nodes (HUD, health bars, inventory UI, ammo counters) — decoupling UI from ECS using World Events (emit_event), Reactive Observers (o_*), CanvasLayer architecture, and preventing per-frame polling",
+      "path": "skills/gecs-ui-bridge"
+    },
+    {
+      "name": "gecs-world-architecture",
+      "description": "Use when setting up GECS World architecture, execution groups (run-first, input, gameplay, physics, ui, debug, run-last), scene tree layout, level switching, world.compact(), and world.purge()",
+      "path": "skills/gecs-world-architecture"
+    },
+    {
+      "name": "godot-grill",
+      "description": "Use when designing GECS state machines or ECS systems — interrogates open design decisions in batched rounds, scope first, each question with a recommended answer, and records the answers before any design or code. Triggers on \"grill me\", \"ask me first\", \"question me on the design\", \"what do I need to decide before building\". Not for choosing between Node types or API signatures, and not for bug fixes.",
+      "path": "skills/godot-grill"
+    },
+    {
+      "name": "using-gecs",
+      "description": "Bootstrap skill for GECS — master routing table, workflow guide, tool mappings, and how to select between GECS skills in Godot 4.x",
+      "path": "skills/using-gecs"
+    }
+  ]
+}
