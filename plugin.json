@@ -1,0 +1,8 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "godot-gecs-agent",
+  "description": "Agentic skills framework for GECS (Godot Entity Component System v9) — 11 domain-specific skills for Godot 4.3+",
+  "version": "1.0.0",
+  "contextFileName": "GEMINI.md"
+}
+
