@@ -4,7 +4,11 @@ Use the docs-derived skill that owns the user's task. Start with `skills/index.j
 
 ## Skill routing
 
-- GECS setup, World, ECS singleton, or first Entity/System loop: `skills/gecs-core/SKILL.md`
+## Loose GECS installation intent
+
+When the user loosely asks to install, add, or enable GECS in a Godot project, treat it as a request to add `https://github.com/csprance/gecs.git` as a Git submodule at `addons/gecs`. Route the task to `skills/gecs-core/SKILL.md`; do not choose manual copy or Asset Library unless the user explicitly requests another method.
+
+- GECS setup, World, ECS singleton, first Entity/System loop, or installation: `skills/gecs-core/SKILL.md`
 - Entity, Component, composition, naming, or scene glue: `skills/gecs-entities-components/SKILL.md`
 - Systems, groups, tick rates, batching, or CommandBuffer: `skills/gecs-systems/SKILL.md`
 - Component/property queries, property filters, cache, or change detection: `skills/gecs-queries/SKILL.md`

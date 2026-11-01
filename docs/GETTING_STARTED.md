@@ -2,9 +2,32 @@
 
 ## Installation
 
-1. Copy `addons/gecs/` into your project's `addons/` folder.
-2. Enable the plugin in `Project > Project Settings > Plugins`.
-3. Verify `ECS` appears in `Project > Project Settings > AutoLoads`. See the [README](../../../../README.md) for full setup detail.
+### Option A: Git Submodule (recommended default)
+
+From the Godot project root:
+
+```powershell
+git submodule add https://github.com/csprance/gecs.git addons/gecs
+git submodule update --init --recursive
+```
+
+This keeps the GECS addon under `addons/gecs/` and records the dependency as a Git submodule. To pin a release or tag explicitly, add that ref while creating or updating the submodule rather than silently choosing a legacy branch.
+
+```powershell
+git submodule update --init --recursive
+```
+
+### Option B: Manual Copy
+
+Copy `addons/gecs/` from the GECS repository into your project's `addons/` folder.
+
+### Enable GECS
+
+1. Enable the plugin in `Project > Project Settings > Plugins`.
+2. Verify `ECS` appears in `Project > Project Settings > AutoLoads`.
+3. Use Godot 4.6 or newer for current GECS releases.
+
+See the [README](../../../../README.md) for full setup details.
 
 ## Core Concepts in 30 Seconds
 
