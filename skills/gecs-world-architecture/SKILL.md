@@ -43,18 +43,18 @@ extends Node
 @onready var world: World = $World
 
 func _ready() -> void:
-	ECS.world = world
+ ECS.world = world
 
 func _process(delta: float) -> void:
-	world.process(delta, "run-first")
-	world.process(delta, "input")
-	world.process(delta, "gameplay")
-	world.process(delta, "ui")
-	world.process(delta, "run-last")
+ world.process(delta, "run-first")
+ world.process(delta, "input")
+ world.process(delta, "gameplay")
+ world.process(delta, "ui")
+ world.process(delta, "run-last")
 
 func _physics_process(delta: float) -> void:
-	world.process(delta, "physics")
-	world.process(delta, "debug")
+ world.process(delta, "physics")
+ world.process(delta, "debug")
 ```
 
 ---
@@ -64,25 +64,29 @@ func _physics_process(delta: float) -> void:
 In GECS v9, empty archetypes are **retained** during gameplay to ensure archetype transition graphs remain warm. During level changes, reclaim memory explicitly:
 
 ### 1. `world.compact()`
+
 Reclaims empty, unused archetypes and resets archetype transition edges.
+
 * **When to call:** Between levels, after major entity despawns, or during loading screens.
 
 ### 2. `world.purge()`
+
 Instantly removes and cleans up all entities from the world.
+
 * **When to call:** When unloading a game level or resetting to the main menu.
 
-### Level Transition Pattern:
+### Level Transition Pattern
+
 ```gdscript
 func load_new_level(level_scene: PackedScene) -> void:
-	# 1. Purge all existing ECS entities
-	ECS.world.purge()
+ # 1. Purge all existing ECS entities
+ ECS.world.purge()
 
-	# 2. Compact archetypes to reclaim memory
-	ECS.world.compact()
+ # 2. Compact archetypes to reclaim memory
+ ECS.world.compact()
 
-	# 3. Swap level scene tree nodes
-	current_level_instance.queue_free()
-	current_level_instance = level_scene.instantiate()
-	add_child(current_level_instance)
+ # 3. Swap level scene tree nodes
+ current_level_instance.queue_free()
+ current_level_instance = level_scene.instantiate()
+ add_child(current_level_instance)
 ```
-

@@ -7,6 +7,8 @@ description: Bootstrap skill for GECS — master routing table, workflow guide, 
 
 GECS Agent provides domain-specific knowledge for AI coding assistants working with **GECS v9 (Godot Entity Component System)** in Godot 4.3+.
 
+> **Documentation authority:** Everything under [`docs/`](../../docs/) is the source of truth and must be treated as read-only. Do not edit or remove documentation files unless the user explicitly requests it.
+
 ---
 
 ## 1. Skill Routing Table
@@ -35,19 +37,13 @@ Before implementing or refactoring any GECS system, select the matching domain s
 | **Unit testing ECS systems and components** | `gecs-testing` |
 | **Physics integration (Godot PhysicsServer)** | `gecs-physics-integration` |
 | **Navigation AI pathfinding** | `gecs-navigation-integration` |
-| **Component design: data-only, naming conventions, default values** | `gecs-best-practices` |
-| **Troubleshooting common GECS issues** | `gecs-troubleshooting` |
-| **Multiplayer networking setup** | `gecs-networking` |
-| **Unit testing ECS systems and components** | `gecs-testing` |
-| **Physics integration (Godot PhysicsServer)** | `gecs-physics-integration` |
-| **Navigation AI pathfinding** | `gecs-navigation-integration` |
 
 ---
 
 ## 2. GECS Golden Invariants (Quick Reference)
 
-1. **NEVER call `add_child(entity)` before `ECS.world.add_entity(entity)`.** `add_entity` manages scene tree placement.
-2. **NEVER mutate the world directly during system iteration loops.** Always queue via `cmd: CommandBuffer` (`cmd.remove_entity`, `cmd.add_component`).
+1. **Register entities with `ECS.world.add_entity(entity)`.** With node-based entities, `add_entity` places the entity in the scene tree by default. Choose either a pure-ECS or hybrid node approach consistently.
+2. **Prefer `cmd: CommandBuffer` for structural changes during System iteration.** In v9, zero-copy iteration (`safe_iteration = false`) may skip entities when mutation is performed directly; opt in to copied iteration only with `safe_iteration = true` when needed.
 3. **NEVER put game logic inside a `Component`.** Components are pure data (`Resource`). Logic belongs in `System` or `Observer`.
 4. **ALWAYS provide default arguments in Component `_init()`.** Reflective instantiation will crash without default values.
 5. **NEVER store engine `Node` references in Components.** Store child nodes on the `Entity` subclass as Scene Glue.
@@ -60,4 +56,3 @@ Before implementing or refactoring any GECS system, select the matching domain s
 For details on how tools map across platforms (Google Antigravity, Claude Code, GitHub Copilot, Cursor):
 * See [`references/antigravity-tools.md`](./references/antigravity-tools.md)
 * See [`references/copilot-tools.md`](./references/copilot-tools.md)
-
