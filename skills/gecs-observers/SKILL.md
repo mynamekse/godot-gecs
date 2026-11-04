@@ -1,132 +1,115 @@
 ---
 name: gecs-observers
-description: Use when building reactive event-driven logic in GECS — Observer nodes (o_*.gd), each() callback, .on_added(), .on_removed(), .on_changed(), monitors (.on_match(), .on_unmatch()), custom events, and breaking cascade loops with cmd
+description: Implement GECS reactive logic and migrate legacy observers. Use for added/removed/changed events, query membership monitors, custom events, sub-observers, dependency tracking and v7 observer migration.
 ---
 
-# GECS Observers in Godot 4.3+
+# GECS Observers
 
-Implement reactive, event-driven game logic using GECS v9 Observers. Unlike systems which tick every frame, an `Observer` activates only when specific lifecycle transitions occur (components added/removed, properties mutated, query match sets changed, or custom events dispatched).
+Observers subscribe declaratively to world changes through `QueryBuilder` event modifiers. A plain query with no event modifier is intentionally a no-op.
 
-> **Addon:** GECS · version `v9` · Godot 4.3+ · MIT  
-> **Related skills:** **gecs-core** for primitives, **gecs-systems** for frame-based logic, **gecs-queries** for query construction.
+## Activation Scope
 
----
+- Component lifecycle events
+- Property changes
+- `MATCH` / `UNMATCH` membership monitors
+- Relationship and custom events
+- Multiple reactive axes in one Observer
+- Dependency tracking for reactive caches
+- Migration from legacy v7 `watch()` / callback APIs
 
-## 1. Anatomy of an Observer
+## Source Documents
 
-An observer extends `Observer` (`Node`) and implements `query()` with event modifiers and the `each()` callback:
+- `docs/OBSERVERS.md`
+- `docs/DEPENDENCY_TRACKING.md`
+- `docs/MIGRATION_LEGACY_OBSERVER.md`
+
+## Observer Template
 
 ```gdscript
 class_name HealthObserver
 extends Observer
 
-## 1. Define query and chain event modifiers
 func query() -> QueryBuilder:
-	return q.with_all([C_Health, C_Player]).on_added().on_removed()
+    return q.with_all([C_Health]).on_added().on_removed().on_changed([&"current"])
 
-## 2. Receive matching events
 func each(event: Variant, entity: Entity, payload: Variant) -> void:
-	match event:
-		Observer.Event.ADDED:
-			print("Health component added to: ", entity.name)
-		Observer.Event.REMOVED:
-			print("Health component removed from: ", entity.name)
+    match event:
+        Observer.Event.ADDED:
+            handle_added(entity, payload)
+        Observer.Event.REMOVED:
+            handle_removed(entity, payload)
+        Observer.Event.CHANGED:
+            handle_changed(entity, payload)
 ```
 
-> **Warning:** A query that returns `q.with_all([...])` without chaining any event modifiers will never fire. In editor builds, GECS will emit a `push_warning`.
-
----
-
-## 2. Event Types & Modifiers
-
-| Modifier | `Observer.Event` | When It Fires | `payload` Content |
-|---|---|---|---|
-| `.on_added()` | `ADDED` | Watched component added to entity | The component instance just added |
-| `.on_removed()` | `REMOVED` | Watched component removed | The component instance just removed |
-| `.on_changed([&"prop"])` | `CHANGED` | Emitting setter fired on watched component | Dictionary: `{component, property, old_value, new_value}` |
-| `.on_match()` | `MATCH` | Entity transitions **into** query match set | `null` |
-| `.on_unmatch()` | `UNMATCH` | Entity transitions **out of** query match set | `null` |
-| `.on_relationship_added([C_X])`| `RELATIONSHIP_ADDED` | Watched relationship added | The `Relationship` instance |
-| `.on_relationship_removed([C_X])`| `RELATIONSHIP_REMOVED` | Watched relationship removed | The `Relationship` instance |
-| `.on_event(&"custom_name")` | `StringName` | Dispatched via `world.emit_event()` | Arbitrary data passed to emit |
-
----
-
-## 3. Monitors: `.on_match()` and `.on_unmatch()`
-
-Monitors track **state transitions**. They fire **exactly once** when an entity qualifies for the entire query filter, and **once** when it ceases to qualify (e.g. loses a component, is disabled, or is removed from the world).
-
-See full script at [`examples/o_combat_monitor.gd`](./examples/o_combat_monitor.gd).
+A changed Component setter must emit:
 
 ```gdscript
-class_name CombatTargetMonitor
-extends Observer
+@export var current: float = 100.0 : set = set_current
 
-func query() -> QueryBuilder:
-	return q.with_all([C_Player, C_Alive, C_InCombat]).on_match().on_unmatch()
-
-func each(event: Variant, entity: Entity, _payload: Variant) -> void:
-	match event:
-		Observer.Event.MATCH:
-			CombatManager.register_target(entity)
-		Observer.Event.UNMATCH:
-			CombatManager.unregister_target(entity)
+func set_current(value: float) -> void:
+    var old_value := current
+    current = value
+    if current != old_value:
+        property_changed.emit(self, "current", old_value, current)
 ```
 
----
+## Event Reference
 
-## 4. Custom Events (`world.emit_event()`)
+- `.on_added()` dispatches an ADDED event with the added Component instance.
+- `.on_removed()` dispatches a REMOVED event with the removed Component instance.
+- `.on_changed([&"property"])` dispatches CHANGED with a payload Dictionary.
+- `.on_match()` / `.on_unmatch()` track complete query membership transitions.
+- `.on_relationship_added([C_Relation])` and `.on_relationship_removed([C_Relation])` track links.
+- `.on_event(&"name")` subscribes to `world.emit_event()` custom events.
 
-Dispatch one-off decoupling events across the entire world:
+## Membership Monitors
 
 ```gdscript
-# 1. Emit an event (entity can be null for global broadcasts)
-ECS.world.emit_event(&"damage_dealt", target_entity, {
-	"amount": 25.0,
-	"source": player_entity
-})
-
-# 2. Subscribe in an Observer
 func query() -> QueryBuilder:
-	return q.with_all([C_Alive]).on_event(&"damage_dealt")
-
-func each(_event: Variant, entity: Entity, data: Variant) -> void:
-	var health := entity.get_component(C_Health) as C_Health
-	health.current -= data.amount
+    return q.with_all([C_Alive, C_InCombat]).on_match().on_unmatch()
 ```
 
----
+`MATCH` fires once when the full query begins matching. `UNMATCH` fires once when it stops matching, including world removal. Intermediate mutations that preserve membership are silent.
 
-## 5. Multi-Axis Observers with `sub_observers()`
-
-When a single node needs to watch different queries with distinct callbacks:
+## Sub-Observers
 
 ```gdscript
 func sub_observers() -> Array[Array]:
-	return [
-		[q.with_all([C_Health]).on_added().on_removed(), _on_health_lifecycle],
-		[q.with_all([C_Player, C_Alive]).on_match().on_unmatch(), _on_alive_state],
-		[q.with_all([C_Player]).on_event(&"level_up"), _on_level_up]
-	]
-
-func _on_health_lifecycle(event: Variant, entity: Entity, payload: Variant) -> void:
-	pass
-
-func _on_alive_state(event: Variant, entity: Entity, _payload: Variant) -> void:
-	pass
+    return [
+        [q.with_all([C_Health]).on_added().on_removed(), _on_health],
+        [q.with_all([C_Player]).on_event(&"damage_dealt"), _on_damage],
+    ]
 ```
 
----
+Use separate tuples for distinct reactive axes instead of branching on unrelated event sources inside one callback.
 
-## 6. Breaking Mutation Cascades with `cmd`
+## Structural Mutation
 
-If an observer callback modifies entities or components, **always use `cmd: CommandBuffer`** to defer mutations. This avoids recursive dispatch and stack overflow loops:
+Use `cmd` inside callbacks that trigger further structural changes. It breaks synchronous event cascades and avoids stale-cache observation.
 
 ```gdscript
-# ✅ GOOD: Safe deferred cleanup via cmd
-func each(event: Variant, entity: Entity, _payload: Variant) -> void:
-	if event == Observer.Event.REMOVED:
-		for child in get_linked_children(entity):
-			cmd.remove_entity(child)
+func each(event, entity, payload):
+    if event == Observer.Event.REMOVED:
+        cmd.remove_entity(get_child_entity(entity))
 ```
 
+`PER_CALLBACK` flushes after each callback by default where that mode is available. `MANUAL` requires an explicit world command-buffer flush.
+
+## Dependency Tracking
+
+`GECSTracker.track()` discovers executed queries and Component reads while a callable runs. Map discovered dependencies to Observer subscriptions, then re-track and resubscribe if the dependency signature changes.
+
+## Legacy Migration
+
+- Replace `watch()` and `match()` with one filter-rich `query()`.
+- Replace callback methods with one `each(event, entity, payload)`.
+- Use event branches instead of separate lifecycle methods.
+- Chain an event modifier; otherwise the Observer never fires.
+- Preserve helper methods and call them from matching `each()` branches.
+- Replacing membership inference with `.on_match()` / `.on_unmatch()` is recommended.
+
+## References
+
+- [Observer API summary](references/observer-api.md)
+- [Migration example](examples/v7-to-v8.md)
