@@ -3,7 +3,7 @@ Write-Host "🚀 Starting GECS Project Scaffolding..." -ForegroundColor Green
 
 # 1. List of Directories to Create
 $directories = @(
-    "addons/gecs",
+    "addons",
     "assets/audio",
     "assets/sprites",
     "common/constants",
@@ -37,6 +37,10 @@ foreach ($dir in $directories) {
         Write-Host "  [+] Created directory: $dir" -ForegroundColor Cyan
     }
 }
+
+# Copy the GECS folder into addons
+Copy-Item -LiteralPath "\\wsl.localhost\Ubuntu\home\gecs" -Destination "addons" -Recurse -Force
+Write-Host "  [+] Copied GECS folder to: addons\gecs" -ForegroundColor Cyan
 
 # 3. Create Key Placeholder Files with Default GDScript Content
 
